@@ -7,7 +7,7 @@
   "dev": "vite",
   "build": "vite build --base=/goit-js-hw-09/",
   "preview": "vite preview"
-}
+  },
   "devDependencies": {
     "glob": "^11.0.0",
     "postcss": "^8.4.41",
