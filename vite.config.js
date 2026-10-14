@@ -3,6 +3,7 @@ import { resolve } from 'path';
 import injectHTML from 'vite-plugin-html-inject';
 import FullReload from 'vite-plugin-full-reload';
 import SortCss from 'postcss-sort-media-queries';
+import glob from 'glob';
 
 export default defineConfig(({ command }) => {
   return {
@@ -14,11 +15,12 @@ export default defineConfig(({ command }) => {
     build: {
       sourcemap: true,
       rollupOptions: {
-        input: {
-          main: resolve(__dirname, 'src/index.html'),
-          gallery: resolve(__dirname, 'src/1-gallery.html'),
-          form: resolve(__dirname, 'src/2-form.html'),
-        },
+        input: Object.fromEntries(
+          glob.sync('./src/*.html').map(file => [
+            file.slice(file.lastIndexOf('/') + 1, file.lastIndexOf('.')),
+            resolve(__dirname, file),
+          ])
+        ),
         output: {
           manualChunks(id) {
             if (id.includes('node_modules')) {
@@ -31,9 +33,7 @@ export default defineConfig(({ command }) => {
             }
             return 'assets/[name]-[hash].js';
           },
-          assetFileNames: assetInfo => {
-            return 'assets/[name]-[hash][extname];';
-          },
+          assetFileNames: 'assets/[name]-[hash][extname]',
         },
       },
     },
