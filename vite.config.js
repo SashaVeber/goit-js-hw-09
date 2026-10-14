@@ -3,7 +3,6 @@ import { resolve } from 'path';
 import injectHTML from 'vite-plugin-html-inject';
 import FullReload from 'vite-plugin-full-reload';
 import SortCss from 'postcss-sort-media-queries';
-import { globSync } from 'glob';
 
 export default defineConfig(({ command }) => {
   return {
@@ -15,28 +14,22 @@ export default defineConfig(({ command }) => {
     build: {
       sourcemap: true,
       rollupOptions: {
-        input: Object.fromEntries(
-          globSync('src/*.html').map(file => [
-            file.slice(file.lastIndexOf('/') + 1, file.lastIndexOf('.')),
-            resolve(__dirname, file),
-          ])
-        ),
+        input: {
+          main: resolve(__dirname, 'src/public/index.html'),
+          gallery: resolve(__dirname, 'src/public/1-gallery.html'),
+          form: resolve(__dirname, 'src/public/2-form.html'),
+        },
         output: {
           manualChunks(id) {
             if (id.includes('node_modules')) {
               return 'vendor';
             }
           },
-          entryFileNames: chunkInfo => {
-            if (chunkInfo.name === 'commonHelpers') {
-              return 'commonHelpers.js';
-            }
-            return 'assets/[name]-[hash].js';
-          },
+          entryFileNames: 'assets/[name]-[hash].js',
           assetFileNames: 'assets/[name]-[hash][extname]',
         },
       },
     },
-    plugins: [injectHTML(), FullReload('./src/**/**.html')],
+    plugins: [injectHTML(), FullReload('./src/public/**/**.html')],
   };
 });
