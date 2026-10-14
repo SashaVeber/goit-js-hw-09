@@ -11,14 +11,12 @@ export default defineConfig(({ command }) => {
     define: {
       [command === 'serve' ? 'global' : '_global']: {},
     },
-    root: 'src/public',
+    root: 'src',
     build: {
-      outDir: '../../dist',
-      emptyOutDir: true,
       sourcemap: true,
       rollupOptions: {
         input: Object.fromEntries(
-          globSync('src/public/*.html').map(file => [
+          globSync('src/*.html').map(file => [
             file.slice(file.lastIndexOf('/') + 1, file.lastIndexOf('.')),
             resolve(__dirname, file),
           ])
@@ -29,11 +27,16 @@ export default defineConfig(({ command }) => {
               return 'vendor';
             }
           },
-          entryFileNames: 'assets/[name]-[hash].js',
+          entryFileNames: chunkInfo => {
+            if (chunkInfo.name === 'commonHelpers') {
+              return 'commonHelpers.js';
+            }
+            return 'assets/[name]-[hash].js';
+          },
           assetFileNames: 'assets/[name]-[hash][extname]',
         },
       },
     },
-    plugins: [injectHTML(), FullReload('./**/**.html')],
+    plugins: [injectHTML(), FullReload('./src/**/**.html')],
   };
 });
